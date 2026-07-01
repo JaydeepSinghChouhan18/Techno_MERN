@@ -6,6 +6,31 @@
     <title>Document</title>
 </head>
 <body>
-     <h2> Techno MERN</h2>
+     <h2> Techno MERN</h2> 
+      <a href="https://www.w3schools.com/js/js_project_todo.asp" target="blank">W3Schools toDoList</a>
+      <a href="https://www.w3schools.com/" target="blank">W3Schools </a>  <br><br>
+
+       <input type="text" id="submitIt">
+       <button id="submitIt" onclick="pressIt()">Submit</button> 
+
+     <script> 
+
+        let task = document.getElementById('submitIt'); 
+        task.addEventListener('keypress' , (e) => { 
+          if(e.key ==="Enter") {  
+            e.preventDefault(); 
+            console.log("Enter pressed by keyboard ");
+
+          }
+        })  
+   
+        function pressIt() {  
+            console.log("by Screen ");
+         }
+
+
+
+
+     </script>
 </body>
 </html>
