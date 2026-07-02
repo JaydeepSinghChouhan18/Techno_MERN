@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>JavaScript Project</h1>
+<h2>To-Do List</h2>
+  
+
+ <button onclick="edit()" ></button>
+<input id="task" placeholder="New task">
+
+<button onclick="addTask()">Add</button>
+
+<ul id="list"></ul>
+
+<button onclick="clearAll()">Clear All</button>
+
+<script>
+ let tasks = [];
+
+ function displayTasks() {
+  let html = "";
+  for (let i = 0; i < tasks.length; i++) {
+    html += `<ul><label><input type="checkbox" class="chkbox" onchange="toggleStrike(this)"> ${tasks[i]} <button onclick=edit()</label> <button onclick="removeTask(${i})">x</button></ul>`;
+  }
+  document.getElementById("list").innerHTML = html;
+}   
+
+ function addTask() {
+  let taskInput = document.getElementById("task");
+  let text = taskInput.value;
+  if (text === "") {
+    window.alert("Empty Task");
+    return;
+  }
+  tasks.push(text);
+  taskInput.value = "";
+  saveTasks();
+  displayTasks();
+}
+
+ function removeTask(i) {
+  tasks.splice(i, 1);
+  saveTasks();
+  displayTasks();
+}
+
+ function clearAll() {
+  tasks = [];
+  saveTasks();
+  displayTasks();
+}
+
+ function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+ function loadTasks() {
+  let saved = localStorage.getItem("tasks");
+  if (saved !== null) {
+    tasks = JSON.parse(saved);
+  }
+} 
+
+ function toggleStrike(checkbox) {
+  if (checkbox.checked) {
+    checkbox.parentElement.style.textDecoration = "line-through";
+  } else {
+    checkbox.parentElement.style.textDecoration = "none";
+  }
+}
+
+ loadTasks();
+displayTasks();   
+
+const inputTask = document.getElementById('task');  
+inputTask.addEventListener('keypress' , function(e) { 
+    if(e.key === 'Enter') { 
+        e.preventDefault(); 
+        addTask(); 
+    } 
+})
+ 
+
+</script>
+
+</body>
+</html>
