@@ -3,11 +3,12 @@ async function getJoke() {
   const data = await response.json();
   console.log(data.setup, "-", data.punchline); 
 }
+
  
 async function getData() {
-  const res = await fetch("https://jsonplaceholder.typicode.com/users/1");
-  const data = await res.json();
-  console.log("Name:" , data.name ," " , "Username:" , " " , data.username); 
+    const res = await fetch("https://jsonplaceholder.typicode.com/users/1");
+    const data = await res.json();
+    console.log("Name:" , data.name ," , " , "Username:" , " " , data.username); 
 
     const postAPI = await fetch("https://jsonplaceholder.typicode.com/postss/1");
     const data2 = await postAPI.json();
