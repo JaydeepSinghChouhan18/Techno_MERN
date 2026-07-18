@@ -1,0 +1,10 @@
+node_modules/
+.env
+dist/
+build/
+*.log 
+
+
+
+// git config global user.name 
+// git config global user.email  

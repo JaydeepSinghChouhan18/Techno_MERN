@@ -1,0 +1,13 @@
+p {
+margin:20px ; 
+padding:10px ;
+background-color: antiquewhite; 
+text-decoration: line-through;
+} 
+
+#lorem , .para { 
+    background-color: rgb(179, 179, 218); 
+    text-decoration: dashed;
+ } 
+  
+
