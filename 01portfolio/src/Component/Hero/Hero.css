@@ -1,0 +1,142 @@
+.orange-text {
+  color: #ff6b2b;
+}
+
+.hero{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:90px;
+    padding-top:150px;
+    padding-bottom:80px;
+}
+
+.bio-text {
+  max-width: 412px;
+   line-height: 1.5;
+}
+.font-style {
+  font-family: "DM Sans", sans-serif;
+}
+
+.light-font {
+  color: rgb(104, 98, 98);
+}
+
+.dark-font {
+  color: black;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.p-12 {
+  font-size: 12px;
+}
+
+.p-14 {
+  font-size: 14px;
+}
+
+.p-72 {
+  font-size: 64px;
+}
+
+.p-15 {
+  font-size: 15px;
+}
+.p-20 {
+  font-size: 20px;
+}
+.p-30 {
+  font-size: 30px;
+}
+.first-div{
+    max-width:540px;
+}
+
+.second-div{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+}
+.first-div {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.second-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Portfolio-img {
+  width: 350px;
+  height: 350px;
+  position: relative;   
+}
+
+.Portfolio-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2rem;
+  display: block;
+}
+
+.buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ViewMyWork,
+.getInTouch {
+ padding:15px 28px;
+  border-radius: 2rem;
+}
+
+.ViewMyWork {
+  background-color: black;
+  color: white;}
+
+ .ViewMyWork:hover,
+.getInTouch:hover{
+    transform:scale(.97);
+}
+
+.ViewMyWork,
+.getInTouch{
+    cursor:pointer;
+}
+
+.experience {
+  /* display: flex;
+  gap: 50px;
+  padding: 32px;  */
+
+   display:flex;
+    gap:50px;
+    margin-top:50px;
+    padding-top:35px;
+    border-top:1px solid #e5e5e5;
+}
+
+.PhotoTag {
+  position: absolute;
+  left: -4px;
+  bottom: 4px;
+  background: #ff6b2b;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 1rem;
+  font-weight: 600;
+}
+
+button:hover {
+  transform: scale(0.97);
+  /* font-size: 13px; */
+}

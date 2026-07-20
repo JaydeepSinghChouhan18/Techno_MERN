@@ -1,0 +1,109 @@
+/* Main Section Container */
+.services {
+  padding-top: 100px;
+  padding-bottom: 100px;
+  background-color: #ffffff;
+  font-family: "DM Sans", sans-serif; /* Matches the hero font choice */
+}
+
+/* Uses the same approach as hero to sit naturally inside your app container */
+.container {
+  width: 100%;
+}
+
+/* Small orange label at the top ("WHAT I DO") */
+.container > p {
+  color: #ff6b2b;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+/* Big section title ("Services") */
+.container h2 {
+  font-size: 48px;
+  font-weight: 700;
+  color: black;
+  margin-top: 0px;
+  margin-bottom: 50px;
+  line-height: 1.1;
+}
+
+/* Flex layout matching the layout energy of the hero options */
+.div-cards {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+}
+
+/* Base card styling using beginner-friendly flex properties */
+.div-cards > div {
+  flex: 1;
+  background-color: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 18px;
+  padding: 32px;
+}
+
+/* ----------------------------------------------------------------- */
+/* TARGETING THE MIDDLE DARK CARD VIA CSS ONLY                       */
+/* ----------------------------------------------------------------- */
+
+/* Makes the second card dark with an orange border */
+.div-cards > div:nth-child(2) {
+  background-color: #1a1a1a;
+  border: 2px solid #ff6b2b;
+}
+
+/* Changes heading text color inside the middle dark card */
+.div-cards > div:nth-child(2) h3 {
+  color: #ffffff;
+}
+
+/* Changes description paragraph color inside the middle dark card */
+.div-cards > div:nth-child(2) p {
+  color: #a0a0a0;
+}
+
+/* Changes the icon background styling inside the middle dark card */
+.div-cards > div:nth-child(2) > div {
+  background-color: #2c1e1a;
+  color: #ff6b2b;
+}
+
+/* ----------------------------------------------------------------- */
+/* CARD INTERNAL ELEMENTS (ICONS & TYPOGRAPHY)                       */
+/* ----------------------------------------------------------------- */
+
+/* Small circle or square box containing the emoji */
+.div-cards > div > div {
+  width: 64px;
+  height: 64px;
+  background-color: #fff0ec;
+  color: #ff6b2b;
+  font-size: 28px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* Card Heading Text */
+.div-cards h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: black;
+  margin-top: 0px;
+  margin-bottom: 16px;
+}
+
+/* Card Description Paragraphs */
+.div-cards p {
+  color: rgb(104, 98, 98);
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 0px;
+}
