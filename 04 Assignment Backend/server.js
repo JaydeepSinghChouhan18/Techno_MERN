@@ -1,26 +1,24 @@
 const express = require("express");
-const cookieParser = require("cookie-parser");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+const app = express();
 
 const connectDB = require("./config/db");
-const Auth = require("./model/AuthModel");
-const Product = require("./model/ProductModel");
-const authMiddleware = require("./middleware/authMiddleware");
+const authRoutes = require("./routes/authRoutes");
+const productRoutes = require("./routes/productRoutes");
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
 
-const app = express();
+const PORT = process.env.PORT || 3000 ; 
 
 app.use(express.json());
 app.use(cookieParser());
-const PORT = 3000;
-JWT_SECRET = "technoNJR"; 
 
+
+app.use("/auth",authRoutes);
+app.use("/product", productRoutes);
 
 const startServer = async () => {
-  try {
+  try{
     await connectDB();
-
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
@@ -31,286 +29,281 @@ const startServer = async () => {
 
 startServer();
 
-////  AUTH ROUTES
+// ////  AUTH ROUTES
+// // Register ====================
+// app.post("/register", async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
 
-// Register ====================
-app.post("/register", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+//     if (!name || !email || !password) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "All fields are required",
+//       });
+//     }
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
+//     const existingUser = await Auth.findOne({ email });
 
-    const existingUser = await Auth.findOne({ email });
+//     if (existingUser) {
+//       return res.status(409).json({
+//         success: false,
+//         message: "User already exists",
+//       });
+//     }
 
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "User already exists",
-      });
-    }
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+//     const user = await Auth.create({
+//       name,
+//       email,
+//       password: hashedPassword,
+//     });
 
-    const user = await Auth.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
+//     res.status(201).json({
+//       success: true,
+//       message: "User registered successfully",
+//       data: {
+//         id: user._id,
+//         name: user.name,
+//         email: user.email,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
-    res.status(201).json({
-      success: true,
-      message:"User registered successfully",
-      data: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+// // Login ===================
 
-// Login ===================
+// app.post("/login", async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
 
-app.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+//     if (!email || !password) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Email and Password are required",
+//       });
+//     }
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and Password are required",
-      });
-    }
+//     const user = await Auth.findOne({ email });
 
-    const user = await Auth.findOne({ email });
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found",
+//       });
+//     }
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
+//     const isPasswordMatched = await bcrypt.compare(password, user.password);
 
-    const isPasswordMatched = await bcrypt.compare(password, user.password);
+//     if (!isPasswordMatched) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Invalid Credentials",
+//       });
+//     }
 
-    if (!isPasswordMatched) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid Credentials",
-      });
-    }
+//     const token = jwt.sign(
+//       {
+//         id: user._id,
+//         email: user.email,
+//       },
+//       process.env.JWT_SECRET,
+//       {
+//         expiresIn: "1d",
+//       },
+//     );
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      },
-    );
+//     res.cookie("token", token, {
+//       httpOnly: true,
+//       // maxAge: 24 * 60 * 60 * 1000,      // 1 day
+//       // secure: false,                       // true in production with HTTPS
+//     });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      secure: false,                // true in production with HTTPS
-    });
+//     res.status(200).json({
+//       success: true,
+//       message: "Login Successful",
+//       token,
+//       user: {
+//         id: user._id,
+//         name: user.name,
+//         email: user.email,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
-    res.status(200).json({
-      success: true,
-      message: "Login Successful",
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+// //   Logout
+// app.post("/logout", async (req, res) => {
+//   try {
+//     res.clearCookie("token");
+//     res.status(200).json({
+//       success: true,
+//       message: "Logout Successful",
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
+// //// PRODUCT Routes =======
+// /// Create Product  ====
 
-// Logout
-app.post("/logout", async (req, res) => {
-  try {
-    res.clearCookie("token");
+// app.post("/products", authMiddleware, async (req, res) => {
+//   try {
+//     const { name, SKU, description, price, category } = req.body;
 
-    res.status(200).json({
-      success: true,
-      message: "Logout Successful",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//     if (!name || !SKU || !description || !price || !category) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "All fields are required",
+//       });
+//     }
 
-/// Create Product  ====
+//     const existingProduct = await Product.findOne({ SKU });
 
-app.post("/products", authMiddleware, async (req, res) => {
-  try {
-    const { name, SKU, description, price, category } = req.body;
+//     if (existingProduct) {
+//       return res.status(409).json({
+//         success: false,
+//         message: "Product already exists",
+//       });
+//     }
 
-    if (!name || !SKU || !description || !price || !category) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
+//     const product = await Product.create({
+//       name,
+//       SKU,
+//       description,
+//       price,
+//       category,
+//     });
 
-    const existingProduct = await Product.findOne({ SKU });
+//     res.status(201).json({
+//       success: true,
+//       message: "Product created successfully",
+//       data: product,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
-    if (existingProduct) {
-      return res.status(409).json({
-        success: false,
-        message: "Product already exists",
-      });
-    }
+// /// get all product
+// app.get("/products", authMiddleware, async (req, res) => {
+//   try {
+//     const page = Number(req.query.page) || 1;
+//     const limit = Number(req.query.limit) || 5;
 
-    const product = await Product.create({
-      name,
-      SKU,
-      description,
-      price,
-      category,
-    });
+//     const products = await Product.find()
+//       .select("-__v")
+//       .sort({ name: 1 })
+//       .skip((page - 1) * limit)
+//       .limit(limit);
 
-    res.status(201).json({
-      success: true,
-      message: "Product created successfully",
-      data: product,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//     res.status(200).json({
+//       success: true,
+//       data: products,
+//     });
+//   } catch(error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
-/// get all product
-app.get("/products", authMiddleware, async (req, res) => {
-  try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 5;
+// // get by id
+// app.get("/products/:id", authMiddleware, async (req, res) => {
+//   try {
+//     const product = await Product.findById(mongoose.Types.ObjectId.isValid(req.params.id));
 
-    const products = await Product.find()
-      .select("-__v")
-      .sort({ name: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+//     if(!product) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
 
-    res.status(200).json({
-      success: true,
-      data: products,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//     res.status(200).json({
+//       success: true,
+//       data: product,
+//     });
+//   }
+//    catch(error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
-// get by id
-app.get("/products/:id", authMiddleware, async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
+// // update product
+// app.patch("/products/:id", authMiddleware, async (req, res) => {
+//   try {
+//     const product = await Product.findById(req.params.id);
 
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
+//     if (!product) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
 
-    res.status(200).json({
-      success: true,
-      data: product,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//     const updatedProduct = await Product.findByIdAndUpdate(
+//       req.params.id,
+//       req.body,
+//       {
+//         new: true,
+//         runValidators: true,
+//       },
+//     );
 
-//update product
-app.patch("/products/:id", authMiddleware, async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
+//     res.status(200).json({
+//       success: true,
+//       message: "Product updated successfully",
+//       data: updatedProduct,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
+// // delete
+// app.delete("/products/:id", authMiddleware, async (req, res) => {
+//   try {
+//     const product = await Product.findById(req.params.id);
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
+//     if (!product) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
 
-    res.status(200).json({
-      success: true,
-      message: "Product updated successfully",
-      data: updatedProduct,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
-// delete
-app.delete("/products/:id", authMiddleware, async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
-
-    await Product.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: "Product deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
-
- 
- 
+//     res.status(200).json({
+//       success: true,
+//       message: "Product deleted successfully",
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
