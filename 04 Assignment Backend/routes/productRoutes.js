@@ -1,156 +1,181 @@
 const express = require("express");
 const router = express.Router();
-
-const Product = require("../models/ProductModel");
-const validate = require("../validations/productValidation") 
+const authMiddleware = require("../middleware/authenticationMiddleware");
+const validate = require("../middleware/validateSchema");
+const authorize = require("../middleware/authorization");
+const {
+  createProductSchema,
+  updateProductSchema,
+} = require("../validations/productValidation");
+const {
+  registerProduct,
+  getAllProduct,
+  getProductByID,
+  updateProduct,
+  deleteProduct,
+} = require("../controllers/productController");
 
 // Create Product API
-router.post("/",authMiddleware , validate(createProductSchema),async (req, res) => {
-  try {
-    const { name, SKU, description, price, category } = req.body;
+router.post(
+  "/",
+  authMiddleware,
+  validate(createProductSchema),
+  authorize("admin"),
+  registerProduct,
+);
 
-    // if (!name || !SKU || !description || !price || !category) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "All fields are required",
-    //   });
-    // }
+// async (req, res) => {
+//   try {
+//     const { name, SKU, description, price, category } = req.body;
 
-    const existingProduct = await Product.findOne({ SKU });
+//     // if (!name || !SKU || !description || !price || !category) {
+//     //   return res.status(400).json({
+//     //     success: false,
+//     //     message: "All fields are required",
+//     //   });
+//     // }
 
-    if (existingProduct) {
-      return res.status(409).json({
-        success: false,
-        message: "Product already exists",
-      });
-    }
+//     const existingProduct = await Product.findOne({ SKU });
 
-    const product = await Product.create({
-      name,
-      SKU,
-      description,
-      price,
-      category,
-    });
+//     if (existingProduct) {
+//       return res.status(409).json({
+//         success: false,
+//         message: "Product already exists",
+//       });
+//     }
 
-    res.status(201).json({
-      success: true,
-      message: "Product created successfully",
-      data: product,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//     const product = await Product.create({
+//       name,
+//       SKU,
+//       description,
+//       price,
+//       category,
+//     });
 
-/// Get All Product API
-router.get("/", async (req, res) => {
-  try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 5;
+//     res.status(201).json({
+//       success: true,
+//       message: "Product created successfully",
+//       data: product,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
-    const products = await Product.find()
-      .select("-__v")
-      .sort({ name: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+router.get("/", getAllProduct);
+//   async (req, res) => {
+//   try {
+//     const page = Number(req.query.page) || 1;
+//     const limit = Number(req.query.limit) || 5;
 
-    res.status(200).json({
-      success: true,
-      data: products,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//     const products = await Product.find()
+//       .select("-__v")
+//       .sort({ name: 1 })
+//       .skip((page - 1) * limit)
+//       .limit(limit);
+
+//     res.status(200).json({
+//       success: true,
+//       data: products,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 
 // Get By ID API
-router.get("/:id" , async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
 
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
+router.get("/:id", getProductByID);
+//async (req, res) => {
+// try {
+//   const product = await Product.findById(req.params.id);
 
-    res.status(200).json({
-      success: true,
-      data: product,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//   if (!product) {
+//     return res.status(404).json({
+//       success: false,
+//       message: "Product not found",
+//     });
+//   }
 
-// Update Product API 
-router.patch("/:id",authMiddleware , async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
+//   res.status(200).json({
+//     success: true,
+//     data: product,
+//   });
+// } catch (error) {
+//   res.status(500).json({
+//     success: false,
+//     message: error.message,
+//   });
+// }
+//});
 
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
+// Update Product API
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
+router.patch("/:id",authMiddleware,validate(updateProductSchema), authorize("admin"),updateProduct);
+//   async (req, res) => {
+//   try {
+//     const product = await Product.findById(req.params.id);
 
-    res.status(200).json({
-      success: true,
-      message: "Product updated successfully",
-      data: updatedProduct,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//     if (!product) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
+
+//     const updatedProduct = await Product.findByIdAndUpdate(
+//       req.params.id,
+//       req.body,
+//       {
+//         new: true,
+//         runValidators: true,
+//       },
+//     );
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Product updated successfully",
+//       data: updatedProduct,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// });
 
 // Delete API
-router.delete("/:id",authMiddleware , async (req, res) => {
-  try {
-    const updatedProduct = await Product.findByIdAndDelete(req.params.id);
 
-    if (!updatedProduct) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
-    
-    res.status(200).json({
-      success: true,
-      message: "Product deleted successfully",
-    });
+router.delete("/:id", authMiddleware,authorize("admin"),deleteProduct);
+//   async (req, res) => {
+//   try {
+//     const updatedProduct = await Product.findByIdAndDelete(req.params.id);
 
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-});
+//     if (!updatedProduct) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Product not found",
+//       });
+//     }
 
-module.exports = router;
+//     res.status(200).json({
+//       success: true,
+//       message: "Product deleted successfully",
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+module.exports = router ;

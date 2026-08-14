@@ -18,7 +18,18 @@ const authSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 6,
+  }, 
+
+  role: { 
+    type : String , 
+    enum :["admin" , "user" , "seller"], 
+    required : true , 
+    default : "user" , 
+    lowercase : true ,
+    maxLength : 6 , 
+    
   },
+
 }); 
 
 const AuthModel = mongoose.model("auth" , authSchema); 

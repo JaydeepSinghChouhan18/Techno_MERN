@@ -4,17 +4,21 @@ const app = express();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
+const addressRoutes = require("./routes/addressRoutes")
 const cookieParser = require("cookie-parser");
+const errorMiddleware = require("./middleware/errorMiddleware");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 3000 ; 
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 
 app.use("/auth",authRoutes);
 app.use("/product", productRoutes);
+app.use("/address" ,addressRoutes); 
 
 const startServer = async () => {
   try{
@@ -28,7 +32,8 @@ const startServer = async () => {
 };
 
 startServer();
-
+ 
+app.use(errorMiddleware)    // this is always at last !!
 // ////  AUTH ROUTES
 // // Register ====================
 // app.post("/register", async (req, res) => {

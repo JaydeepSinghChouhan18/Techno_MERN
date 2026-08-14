@@ -4,7 +4,7 @@ node_modules/
 **/node_modules/
 .env
 **/.env
-wtd.md
+readme.md
 # Environment variables
 .env
 .env.local
