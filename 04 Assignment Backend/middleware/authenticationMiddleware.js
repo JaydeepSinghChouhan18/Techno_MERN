@@ -26,8 +26,6 @@ const authMiddleware = async(req, res, next) => {
 };
 
 module.exports = authMiddleware; 
-
-
  
 // const jwt = require("jsonwebtoken");
 // const Auth = require("../models/AuthModel");
@@ -81,4 +79,3 @@ module.exports = authMiddleware;
 // };
 
 // module.exports = authMiddleware;
-

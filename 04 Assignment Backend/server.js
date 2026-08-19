@@ -1,27 +1,172 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
-const addressRoutes = require("./routes/addressRoutes")
+const addressRoutes = require("./routes/addressRoutes");
 const cookieParser = require("cookie-parser");
 const errorMiddleware = require("./middleware/errorMiddleware");
-require("dotenv").config();
 
-const PORT = process.env.PORT || 3000 ; 
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-
-app.use("/auth",authRoutes);
+app.use("/auth", authRoutes);
 app.use("/product", productRoutes);
-app.use("/address" ,addressRoutes); 
+app.use("/address", addressRoutes);
+
+const multer = require("multer");
+const path = require("path");
+const cloudinary = require("./middleware/cloudinary_Middleware");
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, "uploadedFiles/");
+//   },
+//   filename: (req, file, cb) => {
+//     const ext = path.extname(file.originalname);
+
+//     cb(null, Date.now() + "-" + file.originalname);
+//   },
+// });
+
+// const upload = multer({
+//   storage: storage,
+//   limits: {
+//     fileSize: 2 * 1024 * 1024,
+//     files:2 ,
+//   },
+//   fileFilter: (req, file, cb) => {
+//     if (
+//       file.mimetype === "image/jpeg" ||
+//       file.mimetype === "image/png" ||
+//       file.mimetype === "image/jpg" ||
+//       file.mimetype === "image/webp"
+//     ) {
+//       cb(null, true);
+//     } else {
+//       cb(new Error("Only JPG and PNG files are allowed"));
+//     }
+//   },
+// });
+
+// app.post("/uploads", upload.array("photos", 2), (req, res) => {
+//   try {
+//     console.log(req.files);   // req.files for multiple , req.file for .single
+//   console.log(req.file.destination);
+
+//     res.json({
+//       success: true,
+//       message: "file uploaded successfully",
+//       // data: req.files,
+
+//     });
+//   } catch (err) {
+//     return res.json({
+//       success: false,
+//       message: "Internal Server Error",
+//     });
+//   }
+// });
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Single image upload route
+app.post("/upload", upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  // Upload buffer to Cloudinary using upload_stream
+  const uploadStream = cloudinary.uploader.upload_stream(
+    { folder: "my_uploads" }, // optional folder name in Cloudinary
+    (error, result) => {
+      if (error) {
+        return res.status(500).json({ error: error.message });
+      }
+
+      // result.secure_url is the permanent Cloudinary image URL
+      res.status(200).json({
+        message: "Image uploaded successfully!",
+        imageUrl: result.secure_url,
+        publicId: result.public_id,
+      });
+    },
+  );
+
+  // Send the file buffer to the stream
+  uploadStream.end(req.file.buffer);
+});
+
+app.post("/delete-image", async (req, res) => {
+  try {
+    const { publicId } = req.body;
+
+    if (!publicId) {
+      return res.status(400).json({
+        success: false,
+        message: "failed , publicId required . ",
+      });
+    }
+
+    const result = await cloudinary.uploader.destroy(publicId);
+
+    console.log(result);
+    if (result.result !== "ok") {
+      return res
+        .status(404)
+        .json({ error: "Image not found or already deleted", result });
+    }
+
+    res.status(200).json({
+      message: "Image deleted successfully!",
+      result,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put("/update-image", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Please insert a new image",
+      });
+    }
+    const oldPublicId = req.body.oldPublicId;
+    if (oldPublicId) {
+      const deleteResult = await cloudinary.uploader.destroy(oldPublicId, {
+        invalidate: true,
+      }); 
+      console.log('Old image delete status:', deleteResult)
+    }
+    const uploadstream = cloudinary.uploader.upload_stream(oldPublicId ,
+       { folder : 'my_uploads' } , (error , result ) => { 
+        if (error) {
+          return res.status(500).json({ error: error.message });
+        }
+       });
+
+       res.status(200).json({ 
+        message: "Image replaced successfully " , 
+        imageURL : result.secure_url , 
+        publicId: result.public_id ,
+       })
+    }
+  catch(err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  } ); 
 
 const startServer = async () => {
-  try{
+  try {
     await connectDB();
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
@@ -32,8 +177,9 @@ const startServer = async () => {
 };
 
 startServer();
- 
-app.use(errorMiddleware)    // this is always at last !!
+
+app.use(errorMiddleware); // this is always at last !!
+
 // ////  AUTH ROUTES
 // // Register ====================
 // app.post("/register", async (req, res) => {
